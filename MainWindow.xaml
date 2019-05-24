@@ -1,0 +1,43 @@
+﻿<Window x:Class="Single_Cycle_CPU.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Single_Cycle_CPU"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="656.4" Width="1057.6">
+    <Grid Height="601.2" VerticalAlignment="Top">
+        <TextBlock x:Name="PC" HorizontalAlignment="Left" Height="153.6" Margin="89.2,249.2,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70.4" Foreground="#FFD60F0F" TextAlignment="Center" FontFamily="Felix Titling">
+            <TextBlock.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="White" Offset="0"/>
+                    <GradientStop Color="#FFD92F2F" Offset="1"/>
+                </LinearGradientBrush>
+            </TextBlock.Background><Run FontSize="24"/><LineBreak/><Run FontSize="24"/><LineBreak/><Run Foreground="#FF1B0FD6" FontSize="48" Text="PC"/></TextBlock>
+        <TextBlock x:Name="Registers" HorizontalAlignment="Left" Height="223.6" Margin="305.2,210.65,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140.8" TextAlignment="Center">
+            <TextBlock.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF40D42A" Offset="1"/>
+                    <GradientStop Color="White"/>
+                </LinearGradientBrush>
+            </TextBlock.Background><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run FontSize="24" FontFamily="Felix Titling" Text="Registers"/></TextBlock>
+        <Image x:Name="ALU" Margin="541.03,401.153,0,0" Source="alu-io.jpg" VerticalAlignment="Top" HorizontalAlignment="Left" Width="143.398">
+            <Image.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Image.RenderTransform>
+        </Image>
+        <TextBlock x:Name="Memory" HorizontalAlignment="Left" Height="316.65" Margin="784.8,168.9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="139.2" FontSize="24" FontFamily="Felix Titling" TextAlignment="Center">
+            <TextBlock.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF17EDD2" Offset="1"/>
+                    <GradientStop Color="White"/>
+                </LinearGradientBrush>
+            </TextBlock.Background><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run Text="MEMORY"/></TextBlock>
+
+    </Grid>
+</Window>
