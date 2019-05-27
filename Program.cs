@@ -135,9 +135,9 @@ namespace single_cycle_cpu
         public void clac(string machineCode)
         {
             op = machineCode.Substring(4, 4);
-            rs = Convert.ToInt32(machineCode.Substring(8, 4));
+            rs = Convert.ToInt32(machineCode.Substring(8, 4), 2);
             Console.WriteLine(rs);
-            rt = Convert.ToInt32(machineCode.Substring(12, 4));
+            rt = Convert.ToInt32(machineCode.Substring(12, 4), 2);
             Console.WriteLine(rt);
             // offset can be negative or positive
         }
