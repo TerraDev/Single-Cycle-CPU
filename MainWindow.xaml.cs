@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using Shapes = System.Windows.Shapes;
-using System.IO;
 using System.Speech.Synthesis;
 
 namespace Single_Cycle_CPU
@@ -21,7 +12,6 @@ namespace Single_Cycle_CPU
 
     public partial class MainWindow : Window
     {
-
         MUXA mux_a = new MUXA();
         Memo memo = new Memo();
         MUXB mux_b = new MUXB();
@@ -30,7 +20,7 @@ namespace Single_Cycle_CPU
 
         public SpeechSynthesizer speech;
         int curr_line = 0;
-        int pc = 0;
+        static int pc = 0;
         int lineNum = 0;
 
         public MainWindow()
@@ -71,7 +61,7 @@ namespace Single_Cycle_CPU
         internal void Deploy_signals(Multiplexer a , Memo m,Multiplexer b, Instruction i,Register Regs , Vague_Jump_System js)
         {
             ALU_x alu = new ALU_x();
-            int After_alu;
+            int After_alu = 0;
             int mem_value=0;
             int after_mux_B;
             Color_Path(i.rs,Brushes.Red);
@@ -83,7 +73,12 @@ namespace Single_Cycle_CPU
                 Color_Path("Ext2", Brushes.Red);
                 Color_Path("Ext3", Brushes.Red);
                 Color_Path("Ext4", Brushes.Red);
-                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
+                if(i.Opcode == "1011")// if it is beq
+                {
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                }
+                else if(i.Opcode != "1101")
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
             }
             else                                                                                        //Extension_Or_Reg; -> false=>Register
             {
@@ -101,7 +96,8 @@ namespace Single_Cycle_CPU
                 Color_Path("mr2", Brushes.LightGreen);
                 Color_Path("mr3", Brushes.LightGreen);
                 Color_Path("mem_access", Brushes.Red);
-                mem_value = m.mem[After_alu];
+                if(i.Opcode != "1101")// is this necessery? for jump
+                    mem_value = m.mem[After_alu];
             }
 
             if(m.signal_write)                                                                           // signal_Write = i.Mem_Write;
@@ -139,7 +135,12 @@ namespace Single_Cycle_CPU
                 {
                     Regs.Reg[i.rd] = after_mux_B ;
                 }
-                else Regs.Reg[i.rt] = after_mux_B;
+                else
+                {
+                    if(i.Opcode != "1011") // if it is beq the value of register must not change
+                        Regs.Reg[i.rt] = after_mux_B;
+                }
+                    
             }
 
             if(js.Jump)
@@ -147,6 +148,10 @@ namespace Single_Cycle_CPU
                 Color_Path("j1", Brushes.Linen);
                 Color_Path("j2", Brushes.Linen);
                 Color_Path("j3", Brushes.Linen);
+                
+            }
+            else if(i.Opcode == "1101")// for jump instruction!!!!!!!!
+            {
                 pc = i.offset;
             }
 
@@ -173,7 +178,6 @@ namespace Single_Cycle_CPU
             "rt_to_mem1", "rs_to_ALU","MuxA_to_ALU","mr1","mr2","mr3", "mw1" , "mw2" , "mw3",
             "sw(rt)", "mem_access", "ALU_to_Mem", "WB1","WB2", "mtr1","mtr2","b","reg_write",
             "wwbb","j1","j2","j3"});
-
         }
 
         //TODO: create method to change color to red. Parameter: Instruction
@@ -186,7 +190,6 @@ namespace Single_Cycle_CPU
             string[] fields = decode(line[pc]);
             pc++;
             return fields;
-
         }
         public string[] ReadLines(string []h)
         {
@@ -232,8 +235,7 @@ namespace Single_Cycle_CPU
                 if (op == item.Key)
                 {
                     return "r";
-                }
-                   
+                }                   
             }
 
             // checking if the instruction is I type
@@ -242,8 +244,7 @@ namespace Single_Cycle_CPU
                 if (op == item.Key)
                 {
                     return "i";
-                }
-                   
+                }       
             }
 
             // checking if the instruction is J type
@@ -252,12 +253,12 @@ namespace Single_Cycle_CPU
                 if (op == item.Key)
                 {
                      return "j";
-                }
-                   
+                }        
             }
             // what about directives? how to find out them?
             return "";
         }
+
         public class RTdecoder
         {
             public Dictionary<string, string> instructions = new Dictionary<string, string>
@@ -280,7 +281,6 @@ namespace Single_Cycle_CPU
                     machineCode.Substring(20,12), "" };//20 12
                 return fields;
             }
-
         }
 
         public class ITdecoder
@@ -308,7 +308,7 @@ namespace Single_Cycle_CPU
                 {
                     offset = Convert.ToInt32(machineCode.Substring(16, 16),2);
                 }
-                string[] fields = { op, Convert.ToString(rs), Convert.ToString(rt), Convert.ToString(offset), "65535", "" };
+                string[] fields = { op, Convert.ToString(rs), Convert.ToString(rt), "65535", Convert.ToString(offset), "" };
                 return fields;
             }
         }
@@ -364,7 +364,6 @@ namespace Single_Cycle_CPU
             }
 
             return Reverse(result);
-
         }
 
 
@@ -481,6 +480,9 @@ namespace Single_Cycle_CPU
                 else if (i.Opcode == "0001" || i.Opcode == "1011")//beq
                 {
                     T.Text = "SUB";
+                    if (i.Opcode == "1011")
+                        if ((i1 - i2) == 0)
+                            pc += i.offset;
                     return (i1 - i2);
                 }
 
@@ -528,8 +530,6 @@ namespace Single_Cycle_CPU
             // Create OpenFileDialog 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
-
-
             // Set filter for file extension and default file extension 
             //dlg.DefaultExt = ".txt";
             dlg.Filter = "Text (*.txt) | *.txt";
@@ -545,7 +545,6 @@ namespace Single_Cycle_CPU
                 Speak("Failed to load files!");
         }
 
-
         private void Speak(string txt)
         {
             X_REPORTER.Text = txt;
@@ -558,7 +557,6 @@ namespace Single_Cycle_CPU
 
             // -10 to 10
             speech.Rate = 0;
-
         }
     }
 }
