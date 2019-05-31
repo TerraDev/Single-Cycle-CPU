@@ -22,6 +22,7 @@ namespace Single_Cycle_CPU
         int curr_line = 0;
         static int pc = 0;
         int lineNum = 0;
+        bool first_time = true;
 
         public MainWindow()
         {
@@ -34,10 +35,10 @@ namespace Single_Cycle_CPU
 
         private void Text_Submit(object sender, RoutedEventArgs e)
         {
-            if (lineNum < pc)
+            if (lineNum <= pc && !first_time)
                 if ((sender as Button).IsEnabled)
                     return;
-
+            first_time = false;
             String[] k = GetLines(InputBox,ref lineNum);
             Perform_instructions(k);
         }
@@ -84,7 +85,14 @@ namespace Single_Cycle_CPU
             {
                 Color_Path(i.rt,Brushes.Blue);                                                       
                 Color_Path("rt_to_ALU", Brushes.Blue);
-                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                if(i.Opcode == "1000")// for lui
+                {
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rt], i.offset, Operation_textblock);
+                }
+                else
+                {
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                }
             }
 
             Color_Path("MuxA_to_ALU", Brushes.Red);
@@ -507,7 +515,7 @@ namespace Single_Cycle_CPU
                 else if (i.Opcode == "1000")     //lui
                 {
                     T.Text = "LEFT SHIFT 16 TIMES";
-                    return (i1 + i2) << 16;     // always i1 = 0
+                    return (i2) << 16;     // always i1 = 0
                 }
                 else throw new Exception("Couldn't define ALU operation") ;
             }
