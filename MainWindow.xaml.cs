@@ -58,7 +58,7 @@ namespace Single_Cycle_CPU
             Regs.Set_State(ins);
             js.Set_states(ins);                                                                         //important
             Deploy_signals(mux_a, memo, mux_b, ins, Regs, js);
-            Speak("All instructions successfully operated.");
+            
 
             js.increment_PC(ins);
             Throw_all_exceptions();
@@ -119,8 +119,8 @@ namespace Single_Cycle_CPU
                 Color_Path("mw2", Brushes.Pink);
                 Color_Path("mw3", Brushes.Pink);
                 Color_Path("mem_access", Brushes.Red);
-                Color_Path("rt_to_mem1", Brushes.Pink);
-                Color_Path("rt_to_mem2", Brushes.Pink);
+                Color_Path("rt_to_mem1", Brushes.SeaGreen);
+                Color_Path("sw(rt)", Brushes.SeaGreen);
                 m.mem[After_alu] = Regs.Reg[i.rt];
             }
 
@@ -165,6 +165,7 @@ namespace Single_Cycle_CPU
             }
 
             show_values(Regs);
+            Speak($"insteuction {pc} successfully operated.");
 
             if (js.Jump)
             {

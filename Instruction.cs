@@ -19,8 +19,8 @@ namespace Single_Cycle_CPU
             op4 = (Opcode[3] == '1');
 
             WB = !( op1 && (op3 || (op2 && op4)));
-            Mem_Read = ((!op1 && op2 && op3 && !op4)||(op1 && op2 && op3));
-            Mem_Write = !op1 && op2 && !op3 && op4;
+            Mem_Read = ((op1 && !op2 && !op3 && op4)||(op1 && op2 && op3));
+            Mem_Write = op1 && !op2 && op3 && !op4;
             Jump = (op1 && op2) || (op1 && !op2 && op3 && op4);             //Problem (not much)
             R_type = !((op1 || op2) && (op1 || op3 || op4));                //some problems...
             Extension_Or_Reg = (op1||op2) && (op1 || op3 || op4) && (op2 || !op3 || !op4);
