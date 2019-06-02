@@ -167,20 +167,22 @@
             </TextBlock.Background><Run/><LineBreak/><Run FontSize="24" Text="ALU CONTROL"/></TextBlock>
         <Path Data="M681.933,490.55 L681.933,382.267" Fill="#FF1515E7" HorizontalAlignment="Left" Height="109.283" Margin="681.933,382.267,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
 
-        <TextBox x:Name="InputBox" HorizontalAlignment="Left" Height="491.55" TextWrapping="Wrap" Text="Insert Commands" VerticalAlignment="Top" Width="281.6" FontSize="18" AcceptsReturn="True" Margin="-319.6,0,0,0"/>
+        <TextBox x:Name="InputBox" HorizontalAlignment="Left" Height="491.55" TextWrapping="Wrap" Text="Insert Commands" VerticalAlignment="Top" Width="327.71" FontSize="18" AcceptsReturn="True" Margin="-348.91,0,0,0"/>
 
-        <StackPanel HorizontalAlignment="Left" Height="131.15" Margin="-319.6,491.55,0,0" VerticalAlignment="Top" Width="281.6">
-            <Button Content="Run" HorizontalAlignment="Left" Height="28" Width="281.6" FontSize="16" FontFamily="Showcard Gothic" Click="Text_Submit"/>
-            <Button Content="browse" HorizontalAlignment="Left" Height="27.2" Width="281.6" FontFamily="Showcard Gothic" FontSize="16" Click="Browse_Clicker"/>
-            <Button Content="Next" HorizontalAlignment="Left" Height="29.75" Width="281.6" FontSize="16" FontFamily="Showcard Gothic" />
+        <StackPanel HorizontalAlignment="Left" Height="131.15" Margin="-348.91,491.55,0,0" VerticalAlignment="Top" Width="327.71">
+            <Button Content="Run" HorizontalAlignment="Left" Height="28" Width="327.71" FontSize="16" FontFamily="Showcard Gothic" Click="Text_Submit"/>
+            <Button Content="browse" HorizontalAlignment="Left" Height="27.2" Width="327.71" FontFamily="Showcard Gothic" FontSize="16" Click="Browse_Clicker"/>
+            <Button Content="Next" HorizontalAlignment="Left" Height="29.75" Width="327.71" FontSize="16" FontFamily="Showcard Gothic" />
+            <Button Content="Usage Percentage" HorizontalAlignment="Left" VerticalAlignment="Top" Width="328" Height="29
+                    " FontFamily="Showcard Gothic" FontSize="16" Click="Button_Click"/>
         </StackPanel>
-        <Image gif:ImageBehavior.AnimatedSource="F:\Behdad\GUI Textures\Assistants\WellinformedPoliteGrizzlybear-max-1mb.gif" Margin="-365.71,584.3,1341.8,-52.1" Source="WellinformedPoliteGrizzlybear-max-1mb.gif" Stretch="Fill"/>
+        <Image gif:ImageBehavior.AnimatedSource="F:\Behdad\GUI Textures\Assistants\WellinformedPoliteGrizzlybear-max-1mb.gif" Margin="-398,572,1329.2,-68" Source="WellinformedPoliteGrizzlybear-max-1mb.gif" Stretch="Fill"/>
         <TextBlock x:Name="X_REPORTER" HorizontalAlignment="Left" Height="112" Margin="-168.91,673.87,0,-87.87" TextWrapping="Wrap" VerticalAlignment="Top" Width="1331.8" FontSize="20" FontFamily="Verdana"><Run FontSize="24" Text="Welcome."/><LineBreak/><Run FontSize="24" Text="Please write machine code in the text-box above and click &quot;Run&quot; or pick a text file with machine code."/></TextBlock>
         <Path x:Uid="j1" Data="M521.8,37.267 L521.8,-12.2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="50.467" Margin="521.8,-12.2,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
         <Path x:Uid="j2" Data="M522.8,-12.2 L15,-12.2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="1" Margin="72.467,-12.2,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="451.333"/>
         <Path x:Uid="j3" Data="M73.667,-12.2 L73.667,85.866667" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="37.2" Margin="72.467,-12.2,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
         <Path Data="M108.866,189.867 L108.866,208.8" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="97.133" Margin="108.866,116.667,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
-        <TextBlock HorizontalAlignment="Left"  Height="91.667" Margin="31.2,25,0,0" TextWrapping="Wrap" Text="LOGIC TO GENERATE NEXT ADDRESS" VerticalAlignment="Top" Width="159.2" FontWeight="Bold" FontSize="18" OpacityMask="#FFE23030" Background="#FFEFF7AD"/>
+        <TextBlock x:Name="PC_Box" HorizontalAlignment="Left"  Height="91.667" Margin="31.2,25,0,0" TextWrapping="Wrap" Text="PC=N/A" VerticalAlignment="Top" Width="159.2" FontWeight="Bold" FontSize="18" OpacityMask="#FFE23030" Background="#FFEFF7AD" TextAlignment="Center"/>
         <Path Data="M124.8,117 L124.667,208.8" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="96.8" Margin="124.667,117,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
         <Path x:Uid="wwbb" Data="M488.4,49 L543.4,74" Fill="#FF1515E7" HorizontalAlignment="Left" Height="26" Margin="488.4,49,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="56"/>
         <TextBlock HorizontalAlignment="Left" Height="26.6" Margin="544.4,74,0,0" TextWrapping="Wrap" Text="WB" VerticalAlignment="Top" Width="39.933" FontFamily="Perpetua Titling MT" FontSize="22">

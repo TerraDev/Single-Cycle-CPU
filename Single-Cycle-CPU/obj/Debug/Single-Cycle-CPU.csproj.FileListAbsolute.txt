@@ -16,3 +16,5 @@ F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\obj\Debu
 F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\bin\Debug\WpfAnimatedGif.dll
 F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\bin\Debug\WpfAnimatedGif.xml
 F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\obj\Debug\Single-Cycle-CPU.csproj.CopyComplete
+F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\obj\Debug\Usages.g.cs
+F:\Behdad\programming\C#\UNI Projects\Single-Cycle-CPU\Single-Cycle-CPU\obj\Debug\Usages.baml

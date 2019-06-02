@@ -9,7 +9,8 @@ namespace Single_Cycle_CPU
 {
     public class Instruction
     {
-        public Instruction(String OP, String rd0, String rs0, String rt0, String offset0)
+        //public Instruction(String OP, String rd0, String rs0, String rt0, String offset0)  //my code
+        public Instruction(String OP, String rs0, String rt0, String rd0, String offset0)       //Mehrnoush code
         {
             Opcode = OP;
             op1 = (Opcode[0] == '1');
@@ -17,13 +18,14 @@ namespace Single_Cycle_CPU
             op3 = (Opcode[2] == '1');
             op4 = (Opcode[3] == '1');
 
-            WB = !((op1 && op3) || (op1 && op2 && op4));
-            Mem_Read = !op1 && op2 && op3 && !op4;
-            Mem_Write = !op1 && op2 && !op3 && op4;
-            Jump = (op1 && op2) || ((rs == rt) && (op1 && !op2 && op3 && op4));
-            Extension_Or_Reg = (op1 || op2) && (op3 || op4);
-            Mem_to_Reg_Or_Reg_to_Reg = Mem_Read;
-            R_type=!((op1 || op2) && (op1 || op2 || op3));
+            WB = !( op1 && (op3 || (op2 && op4)));
+            Mem_Read = ((op1 && !op2 && !op3 && op4)||(op1 && op2 && op3));
+            Mem_Write = op1 && !op2 && op3 && !op4;
+            Jump = (op1 && op2) || (op1 && !op2 && op3 && op4);             //Problem (not much)
+            R_type = !((op1 || op2) && (op1 || op3 || op4));                //some problems...
+            Extension_Or_Reg = (op1||op2) && (op1 || op3 || op4) && (op2 || !op3 || !op4);
+            Mem_to_Reg_Or_Reg_to_Reg = Mem_Read; 
+
             rd = Convert.ToInt32(rd0);
             rt = Convert.ToInt32(rt0);
             rs = Convert.ToInt32(rs0);
