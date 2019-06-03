@@ -39,12 +39,13 @@ namespace Single_Cycle_CPU
                 if ((sender as Button).IsEnabled)
                 {
                     Speak("End of Program. Thank you for using our Software!");
-                return;
+                    return;
                 }
             }
             first_time = false;
             String[] k = GetLines(InputBox, ref lineNum);
             Perform_instructions(k);
+            cycle_NO++;
         }
 
         public void Perform_instructions(String[] texts)
@@ -58,7 +59,7 @@ namespace Single_Cycle_CPU
             Regs.Set_State(ins);
             js.Set_states(ins);                                                                         //important
             Deploy_signals(mux_a, memo, mux_b, ins, Regs, js);
-            
+
 
             js.increment_PC(ins);
             Throw_all_exceptions();
@@ -79,25 +80,13 @@ namespace Single_Cycle_CPU
                 Color_Path("Ext2", Brushes.Red);
                 Color_Path("Ext3", Brushes.Red);
                 Color_Path("Ext4", Brushes.Red);
-                //if (i.Opcode == "1011")// if it is beq
-                //{
-                //    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
-                //}
-                //else if (i.Opcode != "1101")
-                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
+                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
             }
             else                                                                                        //Extension_Or_Reg; -> false=>Register
             {
                 Color_Path(i.rt, Brushes.Blue);
                 Color_Path("rt_to_ALU", Brushes.Blue);
-                //if (i.Opcode == "1000")// for lui
-                //{
-                //    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rt], i.offset, Operation_textblock);
-                //}
-                //else
-                //{
-                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
-                //}
+                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
             }
 
             Color_Path("MuxA_to_ALU", Brushes.Red);
@@ -109,8 +98,9 @@ namespace Single_Cycle_CPU
                 Color_Path("mr2", Brushes.LightGreen);
                 Color_Path("mr3", Brushes.LightGreen);
                 Color_Path("mem_access", Brushes.Red);
-               // if (i.Opcode != "1101")// is this necessery? for jump
-                    mem_value = m.mem[After_alu];
+                mem_value = m.mem[After_alu];
+
+                Memo_use++;
             }
 
             if (m.signal_write)                                                                           // signal_Write = i.Mem_Write;
@@ -122,6 +112,7 @@ namespace Single_Cycle_CPU
                 Color_Path("rt_to_mem1", Brushes.SeaGreen);
                 Color_Path("sw(rt)", Brushes.SeaGreen);
                 m.mem[After_alu] = Regs.Reg[i.rt];
+                Memo_use++;
             }
 
             if (b.State)                                                             // State = i.Mem_to_Reg_Or_Reg_to_Reg; ->true=>mem_to_register
@@ -141,22 +132,22 @@ namespace Single_Cycle_CPU
 
             if (Regs.state_wb)                                                                                  //state_wb = i.WB;
             {
-                
+
                 Color_Path("wwbb", Brushes.Gold);
 
                 if (Regs.Ov_register)                                //for writing to rd                      Ov_register = i.R_type;
                 {
                     Color_Path("reg_write", Brushes.Gold);
                     Regs.Reg[i.rd] = after_mux_B;
-                    Color_Register(i.rd , Brushes.Gold );
-                }                                          
-                else if(i.Opcode!="1100")                  //for anything except jalr
+                    Color_Register(i.rd, Brushes.Gold);
+                }
+                else if (i.Opcode != "1100")                  //for anything except jalr
                 {
                     //writing to rt                        // if (i.Opcode != "1011")    
                     Color_Path("reg_write", Brushes.Gold); // if it is beq the value of register must not change
                     Regs.Reg[i.rt] = after_mux_B;          // -> watch out for jalr ->watch out for anything!
                     Color_Register(i.rt, Brushes.Gold);
-                }                                         
+                }
                 else                                       // for jalr
                 {
                     Regs.Reg[i.rt] = pc + 1;
@@ -165,7 +156,7 @@ namespace Single_Cycle_CPU
             }
 
             show_values(Regs);
-            Speak($"insteuction {pc} successfully operated.");
+            Speak($"instruction {pc} successfully operated.");
 
             if (js.Jump)
             {
@@ -173,13 +164,13 @@ namespace Single_Cycle_CPU
                 Color_Path("j2", Brushes.Pink);
                 Color_Path("j3", Brushes.Pink);
 
-                if(i.Opcode=="1011")
+                if (i.Opcode == "1011")
                 {
                     js.jump(i, i.offset, after_mux_B == 0);
                 }
                 else
                 {
-                    js.jump(i,after_mux_B, true);
+                    js.jump(i, after_mux_B, true);
                 }
             }
 
@@ -210,13 +201,13 @@ namespace Single_Cycle_CPU
 
         public void Color_all_Registers_White()
         {
-            for(int i=0; i<16; i++)
+            for (int i = 0; i < 16; i++)
             {
                 ((TextBlock)GetByUid(root_grid, "a" + Convert.ToString(i))).Background = Brushes.White;
             }
         }
 
-        public void Color_Register(int id , SolidColorBrush cl)
+        public void Color_Register(int id, SolidColorBrush cl)
         {
             String i = "a" + Convert.ToString(id);
             ((TextBlock)GetByUid(root_grid, i)).Background = cl;
@@ -318,6 +309,13 @@ namespace Single_Cycle_CPU
                 Console.WriteLine(rt);
                 rd = Convert.ToInt32(machineCode.Substring(16, 4), 2);
                 Console.WriteLine(rd);
+
+                // upadating the register usage
+                Usage_of_Regs[rs] += 1;
+                Usage_of_Regs[rt] += 1;
+                Usage_of_Regs[rd] += 1;
+                total_usage += 3;
+
                 string[] fields = {op, Convert.ToString(rs), Convert.ToString(rt), Convert.ToString(rd),
                     machineCode.Substring(20,12), "" };//20 12
                 return fields;
@@ -349,6 +347,16 @@ namespace Single_Cycle_CPU
                 {
                     offset = Convert.ToInt32(machineCode.Substring(16, 16), 2);
                 }
+
+                // upadating the register usage
+//                if (op != "1000")//lui
+//                {
+                    Usage_of_Regs[rs] += 1;
+                    total_usage += 1;//if it is not lui instruction so we have to increase the value of total_usage because we have rs field too.
+ //               }
+                Usage_of_Regs[rt] += 1;
+                total_usage += 1;
+
                 string[] fields = { op, Convert.ToString(rs), Convert.ToString(rt), "65535", Convert.ToString(offset), "" };
                 return fields;
             }
@@ -372,6 +380,9 @@ namespace Single_Cycle_CPU
                     target = Convert.ToInt32(machineCode.Substring(16, 16), 2);
                 }
                 string[] fields = { op, machineCode.Substring(8, 4), machineCode.Substring(12, 4), "65535", Convert.ToString(target), "" };
+
+                Usage_of_Regs[0]++;
+
                 return fields;
             }
         }
@@ -470,7 +481,7 @@ namespace Single_Cycle_CPU
             public bool signal_read;
             public bool signal_write;
             public int[] mem = new int[65535];
-            
+
             public Memo()
             {
                 mem[0] = -1;
@@ -518,7 +529,7 @@ namespace Single_Cycle_CPU
 
             public int Perform_Operation(Instruction i, int i1, int i2, TextBlock T)
             {
-                if (i.Opcode == "0000" || i.Opcode == "0101" || i.Opcode == "1001" || i.Opcode == "1010" || i.Opcode=="1100" || i.Opcode=="1101" || i.Opcode =="1110")
+                if (i.Opcode == "0000" || i.Opcode == "0101" || i.Opcode == "1001" || i.Opcode == "1010" || i.Opcode == "1100" || i.Opcode == "1101" || i.Opcode == "1110")
                 {
                     T.Text = "ADD";
                     return (i1 + i2);
@@ -527,11 +538,6 @@ namespace Single_Cycle_CPU
                 else if (i.Opcode == "0001" || i.Opcode == "1011")//beq
                 {
                     T.Text = "SUB";
- //                   if (i.Opcode == "1011")
- //                   {
- //                       if ((i1 - i2) == 0)
- //                           pc += i.offset;
- //                   }
                     return (i1 - i2);
                 }
 
@@ -566,16 +572,16 @@ namespace Single_Cycle_CPU
         {
             internal bool Jump;
 
-            public void jump(Instruction i,int jvalue, bool will_jump)
+            public void jump(Instruction i, int jvalue, bool will_jump)
             {
-                if(i.Opcode == "1011")                                                    //beq
+                if (i.Opcode == "1011")                                                    //beq
                 {
-                    if(will_jump)
+                    if (will_jump)
                     {
                         pc += jvalue;
                     }
                 }
-                else if (i.Opcode == "1101" || i.Opcode=="1110" || i.Opcode=="1100")     //j & halt & jalr
+                else if (i.Opcode == "1101" || i.Opcode == "1110" || i.Opcode == "1100")     //j & halt & jalr
                 {
                     pc = jvalue;
                 }
@@ -583,7 +589,7 @@ namespace Single_Cycle_CPU
 
             public void increment_PC(Instruction i)
             {
-                if(i.Opcode != "1101" && i.Opcode != "1110" && i.Opcode != "1100")
+                if (i.Opcode != "1101" && i.Opcode != "1110" && i.Opcode != "1100")
                 {
                     pc++;
                 }
@@ -636,7 +642,7 @@ namespace Single_Cycle_CPU
                 throw new Exception("CANNOT CHANGE VALUE OF REG 0");
             if (memo.mem[0] != -1)
                 throw new Exception("CANNOT CHANGE VALUE OF MEMO INDEX 0");
-            if (pc > lineNum || pc<-1)
+            if (pc > lineNum || pc < -1)
                 throw new Exception("Jumped out of Instuction border");
 
             //come up with other exceptions matbe?
@@ -645,15 +651,23 @@ namespace Single_Cycle_CPU
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Usages u = new Usages();
-            foreach(KeyValuePair<int,int> kvp in Usage_of_Regs)
+
+            foreach (KeyValuePair<int, int> kvp in Usage_of_Regs)
             {
-                u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + kvp.Value + '\n';
+                u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + Math.Round(((double)kvp.Value * 100) / total_usage, 2) + "%\n";
             }
+
+            u.Usage_textblock.Text += "----------------------------------------------------\n";
+            u.Usage_textblock.Text += "Total Number of instructions(lines) : " + (lineNum + 1) + '\n';
+            u.Usage_textblock.Text += "Line Number of current instruction : " + pc + '\n';
+            u.Usage_textblock.Text += "Number of cycles performed : " + cycle_NO + '\n';
+            u.Usage_textblock.Text += "Memory usage  =>  " + ((double)Memo_use * 100/cycle_NO) + "%\n";
 
             u.Show();
         }
 
-        public Dictionary<int, int> Usage_of_Regs = new Dictionary<int, int>()
+        public static int total_usage = 0;
+        public static Dictionary<int, int> Usage_of_Regs = new Dictionary<int, int>()
         {
             [0] = 0,
             [1] = 0,
@@ -672,5 +686,14 @@ namespace Single_Cycle_CPU
             [14] = 0,
             [15] = 0
         };
+
+        public static int cycle_NO;
+        public static int Memo_use;
+
+        private void Restart_Clicker(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
     }
 }
