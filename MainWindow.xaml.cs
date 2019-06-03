@@ -39,7 +39,7 @@ namespace Single_Cycle_CPU
                 if ((sender as Button).IsEnabled)
                 {
                     Speak("End of Program. Thank you for using our Software!");
-                    return;
+                return;
                 }
             }
             first_time = false;
@@ -79,13 +79,25 @@ namespace Single_Cycle_CPU
                 Color_Path("Ext2", Brushes.Red);
                 Color_Path("Ext3", Brushes.Red);
                 Color_Path("Ext4", Brushes.Red);
-                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
+                //if (i.Opcode == "1011")// if it is beq
+                //{
+                //    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                //}
+                //else if (i.Opcode != "1101")
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], i.offset, Operation_textblock);
             }
             else                                                                                        //Extension_Or_Reg; -> false=>Register
             {
                 Color_Path(i.rt, Brushes.Blue);
                 Color_Path("rt_to_ALU", Brushes.Blue);
-                After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                //if (i.Opcode == "1000")// for lui
+                //{
+                //    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rt], i.offset, Operation_textblock);
+                //}
+                //else
+                //{
+                    After_alu = alu.Perform_Operation(i, Regs.Reg[i.rs], Regs.Reg[i.rt], Operation_textblock);
+                //}
             }
 
             Color_Path("MuxA_to_ALU", Brushes.Red);
@@ -97,7 +109,8 @@ namespace Single_Cycle_CPU
                 Color_Path("mr2", Brushes.LightGreen);
                 Color_Path("mr3", Brushes.LightGreen);
                 Color_Path("mem_access", Brushes.Red);
-                mem_value = m.mem[After_alu];
+               // if (i.Opcode != "1101")// is this necessery? for jump
+                    mem_value = m.mem[After_alu];
             }
 
             if (m.signal_write)                                                                           // signal_Write = i.Mem_Write;
@@ -305,13 +318,6 @@ namespace Single_Cycle_CPU
                 Console.WriteLine(rt);
                 rd = Convert.ToInt32(machineCode.Substring(16, 4), 2);
                 Console.WriteLine(rd);
-
-                // upadating the register usage
-                Usage_of_Regs[rs] += 1;
-                Usage_of_Regs[rt] += 1;
-                Usage_of_Regs[rd] += 1;
-                total_usage += 3;
-
                 string[] fields = {op, Convert.ToString(rs), Convert.ToString(rt), Convert.ToString(rd),
                     machineCode.Substring(20,12), "" };//20 12
                 return fields;
@@ -343,16 +349,6 @@ namespace Single_Cycle_CPU
                 {
                     offset = Convert.ToInt32(machineCode.Substring(16, 16), 2);
                 }
-
-                // upadating the register usage
-                if(op != "1000")//lui
-                {
-                    Usage_of_Regs[rs] += 1;
-                    total_usage += 1;//if it is not lui instruction so we have to increase the value of total_usage because we have rs field too.
-                }              
-                Usage_of_Regs[rt] += 1;
-                total_usage += 1;
-
                 string[] fields = { op, Convert.ToString(rs), Convert.ToString(rt), "65535", Convert.ToString(offset), "" };
                 return fields;
             }
@@ -531,6 +527,11 @@ namespace Single_Cycle_CPU
                 else if (i.Opcode == "0001" || i.Opcode == "1011")//beq
                 {
                     T.Text = "SUB";
+ //                   if (i.Opcode == "1011")
+ //                   {
+ //                       if ((i1 - i2) == 0)
+ //                           pc += i.offset;
+ //                   }
                     return (i1 - i2);
                 }
 
@@ -644,17 +645,15 @@ namespace Single_Cycle_CPU
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Usages u = new Usages();
-
             foreach(KeyValuePair<int,int> kvp in Usage_of_Regs)
             {
-                u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + Math.Round(((double)kvp.Value * 100)/total_usage,2) + "%\n";
+                u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + kvp.Value + '\n';
             }
 
             u.Show();
         }
 
-        public static int total_usage = 0;
-        public static Dictionary<int, int> Usage_of_Regs = new Dictionary<int, int>()
+        public Dictionary<int, int> Usage_of_Regs = new Dictionary<int, int>()
         {
             [0] = 0,
             [1] = 0,
@@ -673,6 +672,5 @@ namespace Single_Cycle_CPU
             [14] = 0,
             [15] = 0
         };
-
     }
 }
