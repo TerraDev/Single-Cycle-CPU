@@ -172,7 +172,7 @@
         <StackPanel HorizontalAlignment="Left" Height="131.15" Margin="-348.91,491.55,0,0" VerticalAlignment="Top" Width="327.71">
             <Button Content="Run" HorizontalAlignment="Left" Height="28" Width="327.71" FontSize="16" FontFamily="Showcard Gothic" Click="Text_Submit"/>
             <Button Content="browse" HorizontalAlignment="Left" Height="27.2" Width="327.71" FontFamily="Showcard Gothic" FontSize="16" Click="Browse_Clicker"/>
-            <Button Content="Next" HorizontalAlignment="Left" Height="29.75" Width="327.71" FontSize="16" FontFamily="Showcard Gothic" />
+            <Button Content="Restart" HorizontalAlignment="Left" Height="29.75" Width="327.71" FontSize="16" FontFamily="Showcard Gothic" Click="Restart_Clicker" />
             <Button Content="Usage Percentage" HorizontalAlignment="Left" VerticalAlignment="Top" Width="328" Height="29
                     " FontFamily="Showcard Gothic" FontSize="16" Click="Button_Click"/>
         </StackPanel>
