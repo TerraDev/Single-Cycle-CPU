@@ -645,16 +645,10 @@ namespace Single_Cycle_CPU
         {
             Usages u = new Usages();
 
-            if (total_usage == 0)
-                total_usage = -1;
-
             foreach(KeyValuePair<int,int> kvp in Usage_of_Regs)
             {
                 u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + Math.Round(((double)kvp.Value * 100)/total_usage,2) + "%\n";
             }
-
-            if (total_usage == -1)
-                total_usage = 0;
 
             u.Show();
         }
