@@ -13,7 +13,7 @@ namespace Single_Cycle_CPU
     public partial class MainWindow : Window
     {
         MUXA mux_a = new MUXA();
-        Memo memo = new Memo();
+        static Memo memo = new Memo();
         MUXB mux_b = new MUXB();
         Register Regs = new Register();
         Vague_Jump_System js = new Vague_Jump_System();
@@ -30,8 +30,6 @@ namespace Single_Cycle_CPU
             speech = new SpeechSynthesizer();
             show_values(Regs);
             Speak("Welcome. Please write machine code in the textbox above and click -Run- or pick a text file with machine code.");
-            //for initializing the content of registers and memory with 0
-            initialize_registers_and_memory();
         }
 
         private void Text_Submit(object sender, RoutedEventArgs e)
@@ -46,7 +44,15 @@ namespace Single_Cycle_CPU
             }
             first_time = false;
             String[] k = GetLines(InputBox, ref lineNum);
+            cycle_NO++;
+            if (k[0] == "-1")
+            {
+                pc++;
+                return;
+            }
+               
             Perform_instructions(k);
+            
         }
 
         public void Perform_instructions(String[] texts)
@@ -100,7 +106,8 @@ namespace Single_Cycle_CPU
                 Color_Path("mr3", Brushes.LightGreen);
                 Color_Path("mem_access", Brushes.Red);
                 mem_value = m.mem[After_alu];
-    
+
+                Memo_use++;
             }
 
             if (m.signal_write)                                                                           // signal_Write = i.Mem_Write;
@@ -112,14 +119,7 @@ namespace Single_Cycle_CPU
                 Color_Path("rt_to_mem1", Brushes.SeaGreen);
                 Color_Path("sw(rt)", Brushes.SeaGreen);
                 m.mem[After_alu] = Regs.Reg[i.rt];
-
-            }
-
-            if(m.signal_read || m.signal_write)//either you read from memory or write into memory you can not do both of them at the same time
-            {
-                //Usage of memory and total
-                Usage_of_Memory[After_alu] += 1;
-                total_usage_of_Mem += 1;
+                Memo_use++;
             }
 
             if (b.State)                                                             // State = i.Mem_to_Reg_Or_Reg_to_Reg; ->true=>mem_to_register
@@ -163,7 +163,7 @@ namespace Single_Cycle_CPU
             }
 
             show_values(Regs);
-            Speak($"insteuction {pc} successfully operated.");
+            Speak($"instruction {pc} successfully operated.");
 
             if (js.Jump)
             {
@@ -227,6 +227,8 @@ namespace Single_Cycle_CPU
             String[] h = lines.Split(' ', '\n', '\r');
             string[] line = ReadLines(h);
             lineNum = line.Length;
+            //
+            line = Convert_to_binary(line);
             string[] fields = decode(line[pc]);
             return fields;
         }
@@ -240,34 +242,140 @@ namespace Single_Cycle_CPU
             }
             return lines.ToArray();
         }
+        // function for converting decimal or hex to binary 
+        public string[] Convert_to_binary(string[] s)
+        {
+            int size = s.Length;
+            for(int i=0;i< size;i++)
+            {
+                string binary="",decValue ="";
+                int bSize = 0;
+
+                if(s[i].Contains("0x"))  //for hex
+                {               
+
+                    if(s[i].Length>=4 && !s[i].Contains("-"))
+                    {
+                        binary = Convert.ToString(Convert.ToInt32(s[i], 16), 2);//first convert hex to decimal then convert decimal to binary
+                        bSize = binary.Length;
+                        string zero = "";
+                        for (int j = 0; j < (32 - bSize); j++)
+                            zero += "0";
+                        s[i] = zero+binary;
+                    }
+                    else // for directive .fill
+                    {
+                        string hexValue = "";
+                        string sign = "";
+                       
+                        if (s[i].Contains("-"))      //if number is negative
+                        {
+                            hexValue = s[i].Substring(1, s[i].Length - 1);
+                            sign += "-";
+                        }    
+                        else                        //if number is positive
+                            hexValue = s[i];
+
+                        decValue = Convert.ToString(Convert.ToInt32(hexValue, 16)); // decimal
+                        s[i] = "D" + sign + decValue;
+                    }
+                    
+                    Console.WriteLine(s[i]);
+                }
+                else if(s[i].Contains("0b")) //for binary
+                {
+                    
+                    if (s[i].Length >= 13 && !s[i].Contains("-"))
+                    {
+                        binary = s[i].Substring(2, s[i].Length - 2);
+                        bSize = binary.Length;
+                        string zero = "";
+                        for (int j = 0; j < (32 - bSize); j++)
+                            zero += "0";
+                        s[i] = zero + binary;
+                    }
+                    else // for directive .fill
+                    {
+                        string sign = "";
+
+                        if (s[i].Contains("-"))      //if number is negative
+                        {
+                            binary = s[i].Substring(3, s[i].Length - 3);
+                            sign += "-";
+                        }
+                        else                        //if number is positive
+                            binary = s[i].Substring(2, s[i].Length - 2);
+
+                        decValue = Convert.ToString(Convert.ToInt32(binary, 2));
+                        s[i] = "D" + sign + decValue;
+                    }
+
+                    Console.WriteLine(s[i]);
+                }
+                else                                //for decimal -> that is not hex and that is not binary then it is decimal so convert decimal to binary
+                {
+                    int num = Convert.ToInt32(s[i]);
+                    if (num >= 4096)
+                    {
+                        binary = Convert.ToString(Convert.ToInt32(s[i]), 2);//convert decimal to binary
+                        bSize = binary.Length;
+                        string zero = "";
+                        for (int j = 0; j < (32 - bSize); j++)
+                            zero += "0";
+                        s[i] = zero + binary;
+                    }
+                    else // for directive .fill
+                    {
+                        s[i] = "D" + s[i];
+                    }
+
+                    Console.WriteLine(s[i]);
+                }
+            }
+            return s;
+        }
         public string[] decode(string line)
         {
             RTdecoder rtd = new RTdecoder();
             ITdecoder itd = new ITdecoder();
             JTdecoder jtd = new JTdecoder();
             string[] fields = new string[6];
-
-            string type = check_type(line.Substring(4, 4), ref rtd, ref itd, ref jtd);
-
-            if (type == "r")
+            
+            if(line.Contains("D"))
             {
-                fields = rtd.calc(line);
+                fields = directive_calc(line);
             }
-            else if (type == "i")
+            else
             {
-                fields = itd.clac(line);
-            }
-            else if (type == "j")
-            {
-                fields = jtd.calc(line);
-            }
+                string type = check_type(line.Substring(4, 4), ref rtd, ref itd, ref jtd);
 
+                if (type == "r")
+                {
+                    fields = rtd.calc(line);
+                }
+                else if (type == "i")
+                {
+                    fields = itd.clac(line);
+                }
+                else if (type == "j")
+                {
+                    fields = jtd.calc(line);
+                }
+            }
+            
             return fields;
         }
-
+        static string[] directive_calc(string num)
+        {
+            string[] f = {"-1", "-1" , "-1" , "-1" , "-1" , "-1" };
+            memo.mem[pc] = Convert.ToInt32(num.Substring(1, num.Length - 1));
+            Memo_use++;
+            return f;
+        }
         // function for finding the type of instruction
         static string check_type(string op, ref RTdecoder rtd, ref ITdecoder itd, ref JTdecoder jtd)
         {
+
             // checking if the instruction is R type
             foreach (KeyValuePair<string, string> item in rtd.instructions)
             {
@@ -321,7 +429,7 @@ namespace Single_Cycle_CPU
                 Usage_of_Regs[rs] += 1;
                 Usage_of_Regs[rt] += 1;
                 Usage_of_Regs[rd] += 1;
-                total_usage_of_Rages += 3;
+                total_usage += 3;
 
                 string[] fields = {op, Convert.ToString(rs), Convert.ToString(rt), Convert.ToString(rd),
                     machineCode.Substring(20,12), "" };//20 12
@@ -356,13 +464,13 @@ namespace Single_Cycle_CPU
                 }
 
                 // upadating the register usage
-                if (op != "1000")//lui
-                {
+//                if (op != "1000")//lui
+//                {
                     Usage_of_Regs[rs] += 1;
-                    total_usage_of_Rages += 1;//if it is not lui instruction so we have to increase the value of total_usage because we have rs field too.
-                }
+                    total_usage += 1;//if it is not lui instruction so we have to increase the value of total_usage because we have rs field too.
+ //               }
                 Usage_of_Regs[rt] += 1;
-                total_usage_of_Rages += 1;
+                total_usage += 1;
 
                 string[] fields = { op, Convert.ToString(rs), Convert.ToString(rt), "65535", Convert.ToString(offset), "" };
                 return fields;
@@ -387,6 +495,9 @@ namespace Single_Cycle_CPU
                     target = Convert.ToInt32(machineCode.Substring(16, 16), 2);
                 }
                 string[] fields = { op, machineCode.Substring(8, 4), machineCode.Substring(12, 4), "65535", Convert.ToString(target), "" };
+
+                Usage_of_Regs[0]++;
+
                 return fields;
             }
         }
@@ -651,52 +762,53 @@ namespace Single_Cycle_CPU
 
             //come up with other exceptions matbe?
         }
-     
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Usages u = new Usages();
 
-            // this part is for registers
-            if (total_usage_of_Rages == 0)
-                total_usage_of_Rages = -1;
-
-            for(int i=0;i<16;i++)
+            foreach (KeyValuePair<int, int> kvp in Usage_of_Regs)
             {
-                u.Usage_textblock.Text += "Reg " + i + "  =>  " + Math.Round(((double)Usage_of_Regs[i] * 100) / total_usage_of_Rages, 2) + "%\n";
+                u.Usage_textblock.Text += "Reg " + kvp.Key + "  =>  " + Math.Round(((double)kvp.Value * 100) / total_usage, 2) + "%\n";
             }
 
-            if (total_usage_of_Rages == -1)
-                total_usage_of_Rages = 0;
-
-            // this part is for memory
-            if (total_usage_of_Mem == 0)
-                total_usage_of_Mem = -1;
-
-            for (int i = 0; i < 8192; i++)
-            {
-                u.Usage_textblock.Text += "Mem " + i + "  =>  " + Math.Round(((double)Usage_of_Memory[i] * 100) / total_usage_of_Mem, 2) + "%\n";
-            }
-
-            if (total_usage_of_Mem == -1)
-                total_usage_of_Mem = 0;
+            u.Usage_textblock.Text += "----------------------------------------------------\n";
+            u.Usage_textblock.Text += "Total Number of instructions(lines) : " + lineNum  + '\n';
+            u.Usage_textblock.Text += "Line Number of current instruction : " + pc + '\n';
+            u.Usage_textblock.Text += "Number of cycles performed : " + cycle_NO + '\n';
+            u.Usage_textblock.Text += "Memory usage  =>  " + ((double)Memo_use * 100/cycle_NO) + "%\n";
 
             u.Show();
         }
 
-        public static int total_usage_of_Rages = 0;
-        public static int[] Usage_of_Regs = new int[16];
-
-        public static int total_usage_of_Mem = 0;
-        public static int []Usage_of_Memory = new int[8192];
-
-        public void initialize_registers_and_memory()
+        public static int total_usage = 0;
+        public static Dictionary<int, int> Usage_of_Regs = new Dictionary<int, int>()
         {
-            for (int i = 0; i < 16; i++)
-                Usage_of_Regs[i] = 0;
+            [0] = 0,
+            [1] = 0,
+            [2] = 0,
+            [3] = 0,
+            [4] = 0,
+            [5] = 0,
+            [6] = 0,
+            [7] = 0,
+            [8] = 0,
+            [9] = 0,
+            [10] = 0,
+            [11] = 0,
+            [12] = 0,
+            [13] = 0,
+            [14] = 0,
+            [15] = 0
+        };
 
-            for (int i = 0; i < 8192; i++)
-                Usage_of_Memory[i] = 0;
+        public static int cycle_NO;
+        public static int Memo_use;
+
+        private void Restart_Clicker(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
         }
-        
     }
 }
