@@ -1,0 +1,19 @@
+﻿<Window x:Class="Single_Cycle_CPU.Usages"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Single_Cycle_CPU"
+        mc:Ignorable="d"
+        Title="Usages" Height="909.6" Width="896">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="White" Offset="0"/>
+                <GradientStop Color="#FF8AF7F9" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <TextBlock x:Name="Usage_textblock"  x:FieldModifier="public" Margin="10,10,9.6,10" TextWrapping="Wrap" FontSize="22" FontFamily="Perpetua Titling MT"><Run Text="Usage "/><Run Text=":"/><LineBreak/><Run Text=""/></TextBlock>
+
+    </Grid>
+</Window>
